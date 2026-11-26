@@ -19,7 +19,7 @@
       "additionalProperties": false,
       "required": ["kind", "artifacts"],
       "properties": {
-        "kind": { "enum": ["godot_translation"] },
+        "kind": { "enum": ["godot_translation", "godot_pack_replace"] },
         "artifacts": {
           "type": "array",
           "minItems": 1,
@@ -29,7 +29,7 @@
             "additionalProperties": false,
             "required": ["type", "url", "sha256", "size"],
             "properties": {
-              "type": { "enum": ["godot_translation", "po"] },
+              "type": { "enum": ["godot_translation", "po", "pck"] },
               "url": { "type": "string", "pattern": "^https://" },
               "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
               "size": { "type": "integer", "minimum": 1, "maximum": 2147483648 }
@@ -67,12 +67,13 @@
       "additionalProperties": false,
       "required": ["method", "params"],
       "properties": {
-        "method": { "enum": ["godot_pck_translations"] },
+        "method": { "enum": ["godot_pck_translations", "godot_pck_replace"] },
         "params": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
             "pck": { "type": "string", "maxLength": 256 },
+            "replace_pack": { "type": "boolean" },
             "insert": {
               "type": "array",
               "minItems": 1,
