@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/VictorCabral99/translate-deck-catalog/main/schema/game.schema.json",
+  "title": "Jogo (entrada do catalogo translate-deck)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["appid", "name", "engine", "risk", "translations"],
+  "properties": {
+    "appid": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["godot", "renpy", "unreal", "unity", "rpgmaker", "gamemaker", "unknown"]
+        },
+        "version": { "type": "string", "maxLength": 32 }
+      }
+    },
+    "packs": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 256 },
+      "maxItems": 50
+    },
+    "buildids": {
+      "oneOf": [
+        { "type": "array", "items": { "type": "string" }, "maxItems": 200 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tested": { "type": "array", "items": { "type": "string" }, "maxItems": 200 },
+            "min": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anticheat", "online"],
+      "properties": {
+        "anticheat": {
+          "type": "array",
+          "items": { "enum": ["eac", "battleye", "vac", "denuvo", "other"] },
+          "uniqueItems": true
+        },
+        "online": { "type": "boolean" }
+      }
+    },
+    "notes": { "type": "string", "maxLength": 4000 },
+    "translations": {
+      "type": "array",
+      "items": { "$ref": "translation.schema.json" }
+    }
+  }
+}

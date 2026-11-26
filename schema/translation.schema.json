@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/VictorCabral99/translate-deck-catalog/main/schema/translation.schema.json",
+  "title": "Traducao (metadados + artefato, nunca codigo)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "appid", "locale", "version", "patch", "source", "permission",
+    "install", "uninstall", "files_touched", "risk"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{1,63}$" },
+    "appid": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string", "maxLength": 200 },
+    "locale": { "type": "string", "pattern": "^[a-z]{2,3}(_[A-Z]{2})?$" },
+    "version": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "artifacts"],
+      "properties": {
+        "kind": { "enum": ["godot_translation"] },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "url", "sha256", "size"],
+            "properties": {
+              "type": { "enum": ["godot_translation", "po"] },
+              "url": { "type": "string", "pattern": "^https://" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "size": { "type": "integer", "minimum": 1, "maximum": 2147483648 }
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "author"],
+      "properties": {
+        "type": { "enum": ["curated", "manual"] },
+        "author": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "origin_url": { "type": "string", "pattern": "^https://" },
+        "license": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "permission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["granted", "implied", "unknown", "denied"] },
+        "evidence_url": { "type": "string", "pattern": "^https://" },
+        "excerpt": { "type": "string", "maxLength": 1000 },
+        "checked_at": { "type": "string", "format": "date" }
+      },
+      "if": { "properties": { "status": { "const": "granted" } }, "required": ["status"] },
+      "then": { "required": ["evidence_url", "checked_at"] }
+    },
+    "install": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "params"],
+      "properties": {
+        "method": { "enum": ["godot_pck_translations"] },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pck": { "type": "string", "maxLength": 256 },
+            "insert": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["pck_path"],
+                "properties": {
+                  "pck_path": { "type": "string", "pattern": "^res://.+" },
+                  "artifact": { "type": "integer", "minimum": 0 }
+                }
+              }
+            },
+            "project_settings": {
+              "type": "object",
+              "propertyNames": { "pattern": "^[A-Za-z0-9_]+/[A-Za-z0-9_/]+$" },
+              "additionalProperties": {
+                "type": ["string", "number", "boolean", "array"]
+              }
+            },
+            "gdre": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": { "path": { "type": "string", "maxLength": 512 } }
+            }
+          }
+        }
+      }
+    },
+    "uninstall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "properties": { "method": { "const": "manifest_revert" } }
+    },
+    "files_touched": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 256 },
+      "uniqueItems": true
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires_offline"],
+      "properties": { "requires_offline": { "type": "boolean" } }
+    }
+  }
+}
